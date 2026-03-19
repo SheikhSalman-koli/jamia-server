@@ -6,6 +6,7 @@ const studentSchema = new mongoose.Schema({
     name: {type: String, required: true},
     fatherName: {type: String, required: true},
     class: {type: String, required: true},
+    department: {type: String, required: true},
     phone: {type: String, required: true},
     image: {type: String, required: true},
     bloodGroup: String,
@@ -19,8 +20,13 @@ const studentSchema = new mongoose.Schema({
     }},
     nid: {type: Number, required: true, unique: true},
     fatherNid: {type: Number, required: true, unique: true},
-    status: {type: String, default: 'active'},
+    status: {type: String, default: 'সক্রিয়'},
     category: {type: String, required: true},
+    type: {type: String, required: true},
+    permanentAddress: {type: String },
+    temporaryAddress: {type: String },
+    addedBy: {type: String },
+    createdAt: {type: Date}
 
 }, { versionKey: false })
 

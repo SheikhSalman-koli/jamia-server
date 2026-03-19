@@ -2,9 +2,9 @@ import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import { User } from './models/user.js';
 import { userRouter } from './modules/user/user.router.js';
-import { Student } from './models/student.js';
+import { studentRouter } from './modules/student/student.router.js';
+
 
 const port = process.env.PORT || 5000
 const app = express()
@@ -25,10 +25,7 @@ app.get('/', (req, res) => {
 
 app.use('/users', userRouter)
 
-app.post('/students', async(req, res)=> {
-  const newStudent = await Student.create(req.body)
-  res.send(newStudent)
-})
+app.use('/students', studentRouter)
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
