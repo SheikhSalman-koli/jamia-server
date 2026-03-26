@@ -44,8 +44,25 @@ const getUserByEmail = async(req, res) => {
     }
 }
 
+const updateUserRole = async(req, res) => {
+    try {
+
+        const query = req?.query
+        const data = req?.body
+         const result = await userService.updateUserRole(query, data)
+                res.status(200).send({
+                    success: true,
+                    message: "User role updated successfully",
+                    data: result
+                });
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 export const userController = {
     createUser,
     getAllUser,
-    getUserByEmail
+    getUserByEmail,
+    updateUserRole
 }

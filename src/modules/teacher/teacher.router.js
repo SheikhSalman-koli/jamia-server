@@ -7,5 +7,4 @@ router.post('/', teacherController.createTeacher)
 
 router.get('/', teacherController.getTeacher)
 
-
 export const teacherRouter = router

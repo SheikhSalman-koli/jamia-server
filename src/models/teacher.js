@@ -11,7 +11,7 @@ const teacherSchema = new mongoose.Schema({
     bloodGroup: { type: String },
     nid: { type: Number, required: true, unique: true },
     salary: { type: Number, default: 0 }, // নতুন যুক্ত
-    joiningDate: { type: Date, default: Date.now }, // নতুন যুক্ত
+    joiningDate: { type: Date , default:  new Date().toISOString().split("T")[0]}, // নতুন যুক্ত
     status: { type: String, default: 'সক্রিয়' },
     category: { type: String }, // যেমন: পূর্ণকালীন/খণ্ডকালীন
     permanentAddress: { type: String },

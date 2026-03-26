@@ -9,4 +9,6 @@ router.get('/', userController.getAllUser)
 
 router.get('/byemail', userController.getUserByEmail)
 
+router.patch('/update-role', userController.updateUserRole)
+
 export const userRouter = router

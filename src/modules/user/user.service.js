@@ -16,8 +16,22 @@ const getUserByEmail = async(email) => {
     return result
 }
 
+const updateUserRole = async(email, data) => {
+    //  const user = await User.findOne(email)
+    const targetEmail = typeof email === 'object' ? email?.email : email;
+
+    const result = await User.findOneAndUpdate(
+        {email: targetEmail},
+        {$set: data},
+        {new: true}
+    )
+
+    return result
+}
+
 export const userService = {
     createUser,
     getAllUser,
-    getUserByEmail
+    getUserByEmail,
+    updateUserRole
 }
