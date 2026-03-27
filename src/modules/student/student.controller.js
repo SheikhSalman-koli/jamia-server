@@ -42,8 +42,34 @@ const getStudentById = async (req, res) => {
     }
 }
 
+
+const getStats = async (req, res) => {
+  try {
+    const data = await studentService.getStudentAnalytics()
+    
+    res.status(200).json({
+      success: true,
+      message: "পরিসংখ্যান সফলভাবে পাওয়া গেছে",
+      data: {
+        summary: data?.totalStats[0] || { totalStudents: 0, newStudents: 0, oldStudents: 0, todayAdmitted: 0 },
+        byDepartment: data?.departmentStats,
+        byClass: data?.classStats,
+        dailyTrend: data?.dailyAdmissions
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "সার্ভার এরর",
+      error: error.message
+    });
+  }
+};
+
+
 export const sutdentController = {
     createStudent,
     getStudent,
-    getStudentById
+    getStudentById,
+    getStats
 }

@@ -7,6 +7,9 @@ router.post('/', sutdentController.createStudent)
 
 router.get('/', sutdentController.getStudent)
 
+router.get('/student/stats', sutdentController.getStats)
+
 router.get('/:id', sutdentController.getStudentById)
+
 
 export const studentRouter = router
