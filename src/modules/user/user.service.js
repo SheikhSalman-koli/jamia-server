@@ -23,7 +23,7 @@ const updateUserRole = async(email, data) => {
     const result = await User.findOneAndUpdate(
         {email: targetEmail},
         {$set: data},
-        {new: true}
+        {returnDocument: 'after'}
     )
 
     return result

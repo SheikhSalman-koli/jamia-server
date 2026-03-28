@@ -16,7 +16,8 @@ const createStudent = async (req, res) => {
 
 const getStudent = async (req, res) => {
     try {
-        const result = await studentService.getStudent()
+        const query = req?.query
+        const result = await studentService.getStudent(query)
         res.status(200).send({
             success: true,
             message: "Student retrived successfully",
