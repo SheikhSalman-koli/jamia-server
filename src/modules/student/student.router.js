@@ -11,5 +11,7 @@ router.get('/student/stats', sutdentController.getStats)
 
 router.get('/:id', sutdentController.getStudentById)
 
+router.patch('/update/:id', sutdentController.updateStudent)
+
 
 export const studentRouter = router

@@ -8,7 +8,7 @@ const createStudent = async (newStudent) => {
 const getStudent = async (query) => {
 
     const { searchTerm, department, class: selectedClass, bloodGroup, status, category } = query;
-    
+
     let searchQuery = {};
 
     // ১. গ্লোবাল সার্চ (নাম, ফোন অথবা এনআইডি দিয়ে)
@@ -21,7 +21,7 @@ const getStudent = async (query) => {
 
     // ২. স্পেসিফিক ফিল্টার (যদি সিলেক্ট করা থাকে)
     if (department) searchQuery.department = department;
-    if (selectedClass) searchQuery.class = selectedClass ; // 'class' কিউওয়ার্ড সরাসরি ফিল্ড হিসেবে থাকলে
+    if (selectedClass) searchQuery.class = selectedClass; // 'class' কিউওয়ার্ড সরাসরি ফিল্ড হিসেবে থাকলে
     if (bloodGroup) searchQuery.bloodGroup = bloodGroup;
     if (status) searchQuery.status = status;
     if (category) searchQuery.category = category;
@@ -36,6 +36,18 @@ const getStudentById = async (id) => {
 }
 
 
+const updateStudent = async(id, data) => {
+
+    const result = await Student.findOneAndUpdate(
+        { _id: id },
+        {$set: data},
+        {returnDocument: 'after'}
+    )
+
+    return result
+}
+
+
 const getStudentAnalytics = async () => {
 
     const todayDateString = new Date().toISOString().split('T')[0];
@@ -44,26 +56,58 @@ const getStudentAnalytics = async () => {
         {
             $facet: {
                 // ১. মোট পরিসংখ্যান
-
                 totalStats: [
                     {
                         $group: {
                             _id: null,
                             totalStudents: { $sum: 1 },
-                            newStudents: {
+
+                            // ১. সর্বমোট খোরাকীর টাকা (Sum of all students' fee)
+                            totalKhurakiAmount: { $sum: "$definedFee" }, // এখানে আপনার ফিল্ডের নাম দিন (যেমন: monthlyFee)
+
+                            // ২. মোট নতুন ছাত্র
+                            totalNewStudents: {
                                 $sum: { $cond: [{ $eq: ["$type", "নতুন"] }, 1, 0] }
                             },
-                            oldStudents: {
+
+                            // ৩. মোট পুরাতন ছাত্র
+                            totalOldStudents: {
                                 $sum: { $cond: [{ $eq: ["$type", "পুরাতন"] }, 1, 0] }
                             },
-                            // আজকের ভর্তি ফিল্টার
+
+                            // ৪. আজকের মোট ভর্তি (নতুন + পুরাতন মিলে)
                             todayAdmitted: {
                                 $sum: {
                                     $cond: [
+                                        { $eq: [{ $substr: ["$createdAt", 0, 10] }, todayDateString] },
+                                        1, 0
+                                    ]
+                                }
+                            },
+
+                            // ৫. আজকের দিনের "নতুন" ভর্তি
+                            todayNewAdmitted: {
+                                $sum: {
+                                    $cond: [
                                         {
-                                            $eq: [
-                                                { $substr: ["$createdAt", 0, 10] }, // "2026-03-27T..." থেকে প্রথম ১০টি ক্যারেক্টার নেবে
-                                                todayDateString                     // এটিও "2026-03-27"
+                                            $and: [
+                                                { $eq: [{ $substr: ["$createdAt", 0, 10] }, todayDateString] },
+                                                { $eq: ["$type", "নতুন"] }
+                                            ]
+                                        },
+                                        1, 0
+                                    ]
+                                }
+                            },
+
+                            // ৬. আজকের দিনের "পুরাতন" ভর্তি
+                            todayOldAdmitted: {
+                                $sum: {
+                                    $cond: [
+                                        {
+                                            $and: [
+                                                { $eq: [{ $substr: ["$createdAt", 0, 10] }, todayDateString] },
+                                                { $eq: ["$type", "পুরাতন"] }
                                             ]
                                         },
                                         1, 0
@@ -118,9 +162,12 @@ const getStudentAnalytics = async () => {
     return stats[0];
 };
 
+
+
 export const studentService = {
     createStudent,
     getStudent,
     getStudentById,
+    updateStudent,
     getStudentAnalytics
 }

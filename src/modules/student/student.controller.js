@@ -44,6 +44,22 @@ const getStudentById = async (req, res) => {
 }
 
 
+const updateStudent = async (req, res) => {
+    try {
+        const {id} = req?.params
+       const updatedData = req?.body
+        const result = await studentService.updateStudent(id, updatedData)
+        res.status(200).send({
+            success: true,
+            message: "Student updated successfully",
+            data: result
+        });
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
 const getStats = async (req, res) => {
   try {
     const data = await studentService.getStudentAnalytics()
@@ -52,7 +68,7 @@ const getStats = async (req, res) => {
       success: true,
       message: "পরিসংখ্যান সফলভাবে পাওয়া গেছে",
       data: {
-        summary: data?.totalStats[0] || { totalStudents: 0, newStudents: 0, oldStudents: 0, todayAdmitted: 0 },
+        summary: data?.totalStats[0] || { totalStudents: 0, totalNewStudents: 0, totalOldStudents: 0, todayAdmitted: 0, totalKhurakiAmount: 0, todayNewAdmitted:0, todayOldAdmitted:0 },
         byDepartment: data?.departmentStats,
         byClass: data?.classStats,
         dailyTrend: data?.dailyAdmissions
@@ -72,5 +88,6 @@ export const sutdentController = {
     createStudent,
     getStudent,
     getStudentById,
+    updateStudent,
     getStats
 }

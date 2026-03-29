@@ -10,7 +10,6 @@ const getTeacher = async() => {
     return result
 }
 
-
 export const teacherService = {
     createTeacher,
     getTeacher

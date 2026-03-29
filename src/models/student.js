@@ -18,8 +18,8 @@ const studentSchema = new mongoose.Schema({
       },
       message: 'Defined fee ({VALUE}) must be less than the tuition fee.'
     }},
-    nid: {type: Number, required: true, unique: true},
-    fatherNid: {type: Number, required: true, unique: true},
+    nid: {type: String , required: true },
+    fatherNid: {type: String, required: true },
     status: {type: String, default: 'সক্রিয়'},
     category: {type: String, required: true},
     type: {type: String, required: true},

@@ -10,9 +10,19 @@ import { teacherRouter } from './modules/teacher/teacher.router.js';
 const port = process.env.PORT || 5000
 const app = express()
 
+// --- ১. শক্তিশালী CORS পলিসি সেটআপ ---
+const corsOptions = {
+  origin: [
+    'https://jamia-client.vercel.app', 
+    'http://localhost:3000'           
+  ],
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204
+};
 
 //middleware
-app.use(cors())
+app.use(cors(corsOptions));
 app.use(express.json())
 
 mongoose.connect(process.env.MONGO_URI)
