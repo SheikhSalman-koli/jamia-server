@@ -13,5 +13,7 @@ router.get('/:id', sutdentController.getStudentById)
 
 router.patch('/update/:id', sutdentController.updateStudent)
 
+router.delete('/delete/:id', sutdentController.deleteStudent);
+
 
 export const studentRouter = router

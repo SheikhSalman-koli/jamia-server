@@ -36,22 +36,28 @@ const getStudentById = async (id) => {
 }
 
 
-const updateStudent = async(id, data) => {
+const updateStudent = async (id, data) => {
 
     const result = await Student.findOneAndUpdate(
         { _id: id },
-        {$set: data},
-        {returnDocument: 'after'}
+        { $set: data },
+        { returnDocument: 'after' }
     )
 
     return result
 }
 
 
+const deleteStudent = async (id) => {
+    const result = await Student.deleteOne({ _id: id })
+    return result
+}
+
+
 const getStudentAnalytics = async () => {
+    // const todayDateString = new Date().toISOString().split('T')[0];
 
-    const todayDateString = new Date().toISOString().split('T')[0];
-
+    const todayDateString = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Dhaka" });
     const stats = await Student.aggregate([
         {
             $facet: {
@@ -63,7 +69,9 @@ const getStudentAnalytics = async () => {
                             totalStudents: { $sum: 1 },
 
                             // ১. সর্বমোট খোরাকীর টাকা (Sum of all students' fee)
-                            totalKhurakiAmount: { $sum: "$definedFee" }, // এখানে আপনার ফিল্ডের নাম দিন (যেমন: monthlyFee)
+                            totalCost: { $sum: "$tutionFee" },
+
+                            totalKhurakiAmount: { $sum: "$definedFee" },
 
                             // ২. মোট নতুন ছাত্র
                             totalNewStudents: {
@@ -75,23 +83,28 @@ const getStudentAnalytics = async () => {
                                 $sum: { $cond: [{ $eq: ["$type", "পুরাতন"] }, 1, 0] }
                             },
 
-                            // ৪. আজকের মোট ভর্তি (নতুন + পুরাতন মিলে)
+                            // ৪. আজকের মোট ভর্তি (Total Admitted Today)
                             todayAdmitted: {
                                 $sum: {
                                     $cond: [
-                                        { $eq: [{ $substr: ["$createdAt", 0, 10] }, todayDateString] },
+                                        {
+                                            $eq: [
+                                                { $dateToString: { format: "%Y-%m-%d", date: "$createdAt", timezone: "Asia/Dhaka" } },
+                                                todayDateString
+                                            ]
+                                        },
                                         1, 0
                                     ]
                                 }
                             },
 
-                            // ৫. আজকের দিনের "নতুন" ভর্তি
+                            // ৫. আজকের দিনের "নতুন" ভর্তি (Today's New)
                             todayNewAdmitted: {
                                 $sum: {
                                     $cond: [
                                         {
                                             $and: [
-                                                { $eq: [{ $substr: ["$createdAt", 0, 10] }, todayDateString] },
+                                                { $eq: [{ $dateToString: { format: "%Y-%m-%d", date: "$createdAt", timezone: "Asia/Dhaka" } }, todayDateString] },
                                                 { $eq: ["$type", "নতুন"] }
                                             ]
                                         },
@@ -100,13 +113,13 @@ const getStudentAnalytics = async () => {
                                 }
                             },
 
-                            // ৬. আজকের দিনের "পুরাতন" ভর্তি
+                            // ৬. আজকের দিনের "পুরাতন" ভর্তি (Today's Old)
                             todayOldAdmitted: {
                                 $sum: {
                                     $cond: [
                                         {
                                             $and: [
-                                                { $eq: [{ $substr: ["$createdAt", 0, 10] }, todayDateString] },
+                                                { $eq: [{ $dateToString: { format: "%Y-%m-%d", date: "$createdAt", timezone: "Asia/Dhaka" } }, todayDateString] },
                                                 { $eq: ["$type", "পুরাতন"] }
                                             ]
                                         },
@@ -114,6 +127,9 @@ const getStudentAnalytics = async () => {
                                     ]
                                 }
                             }
+
+
+
                         }
                     }
                 ],
@@ -142,16 +158,31 @@ const getStudentAnalytics = async () => {
                     }
                 ],
 
-                // ৪. তারিখ অনুযায়ী ছাত্র ভর্তি (Chart-এর জন্য)
+
                 dailyAdmissions: [
                     {
                         $group: {
-                            _id: { $substr: ["$createdAt", 0, 10] },
+                            // Convert UTC to Dhaka time before grouping into dates
+                            _id: {
+                                $dateToString: {
+                                    format: "%Y-%m-%d",
+                                    date: "$createdAt",
+                                    timezone: "Asia/Dhaka"
+                                }
+                            },
                             count: { $sum: 1 }
                         }
                     },
-                    { $sort: { _id: 1 } }, // তারিখ অনুযায়ী ছোট থেকে বড় সাজানো
-                    { $project: { _id: 0, date: "$_id", count: 1 } }
+                    {
+                        $sort: { _id: 1 } // Sort by date (YYYY-MM-DD string sorts correctly)
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            date: "$_id",
+                            count: 1
+                        }
+                    }
                 ]
 
 
@@ -169,5 +200,6 @@ export const studentService = {
     getStudent,
     getStudentById,
     updateStudent,
+    deleteStudent,
     getStudentAnalytics
 }
