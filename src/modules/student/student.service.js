@@ -7,7 +7,10 @@ const createStudent = async (newStudent) => {
 
 const getStudent = async (query) => {
 
-    const { searchTerm, department, class: selectedClass, bloodGroup, status, category } = query;
+    const { searchTerm, department, class: selectedClass, bloodGroup, status, category, feeType ,
+        page = 1,  // ডিফল্ট ১ নম্বর পেজ
+        limit = 10 // প্রতি পেজে ১০ জন
+    } = query;
 
     let searchQuery = {};
 
@@ -26,8 +29,38 @@ const getStudent = async (query) => {
     if (status) searchQuery.status = status;
     if (category) searchQuery.category = category;
 
-    const result = await Student.find(searchQuery).sort({ createdAt: -1 })
-    return result
+    // ৩. ফি টাইপ ফিল্টার (definedFee ফিল্ডের ওপর ভিত্তি করে)
+    if (feeType === "free") {
+        searchQuery.definedFee = 0;
+    }
+    else if (feeType === "underOneThou") {
+        searchQuery.definedFee = { $gt: 0, $lte: 1000 };
+    }
+    else if (feeType === "underTwoThou") {
+        searchQuery.definedFee = { $gt: 0, $lte: 2000 };
+    }
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+// ১. ডাটা কুয়েরি
+    const students = await Student.find(searchQuery)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit));
+
+    // ২. মোট কতজন স্টুডেন্ট আছে তা বের করা (প্যাজিনেশনের জন্য দরকার)
+    const total = await Student.countDocuments(searchQuery);
+
+    return {
+        students,
+        meta: {
+            total,
+            page: Number(page),
+            limit: Number(limit),
+            totalPages: Math.ceil(total / limit)
+        }
+    };
+    
 }
 
 const getStudentById = async (id) => {
