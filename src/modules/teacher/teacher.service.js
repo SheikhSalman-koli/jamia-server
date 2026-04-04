@@ -10,7 +10,19 @@ const getTeacher = async() => {
     return result
 }
 
+const getTeacherById = async(id) => {
+    const result = await Teacher.findOne({ _id: id })
+    return result
+}
+
+const deleteTeacher = async (id) => {
+    const result = await Teacher.deleteOne({ _id: id })
+    return result
+}
+
 export const teacherService = {
     createTeacher,
-    getTeacher
+    getTeacher,
+    getTeacherById,
+    deleteTeacher
 }
