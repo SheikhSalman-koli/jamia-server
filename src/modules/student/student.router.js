@@ -7,6 +7,8 @@ router.post('/', sutdentController.createStudent)
 
 router.get('/', sutdentController.getStudent)
 
+router.get('/table', sutdentController.getStudentsInTable)
+
 router.get('/student/stats', sutdentController.getStats)
 
 router.get('/:id', sutdentController.getStudentById)

@@ -104,11 +104,26 @@ const getStats = async (req, res) => {
 };
 
 
+const getStudentsInTable = async (req, res) => {
+    try {
+        const result = await studentService.getStudentInTable()
+        res.status(200).send({
+            success: true,
+            message: "Student retrived successfully",
+            data: result
+        });
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
 export const sutdentController = {
     createStudent,
     getStudent,
     getStudentById,
     updateStudent,
     deleteStudent,
-    getStats
+    getStats,
+    getStudentsInTable
 }
