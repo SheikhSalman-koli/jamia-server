@@ -106,7 +106,7 @@ const getStats = async (req, res) => {
 
 const getStudentsInTable = async (req, res) => {
     try {
-        const result = await studentService.getStudentInTable()
+        const result = await studentService.getStudentInTable(req?.query)
         res.status(200).send({
             success: true,
             message: "Student retrived successfully",

@@ -226,22 +226,12 @@ const getStudentAnalytics = async () => {
     return stats[0];
 };
 
-const getStudentInTable = async () => {
-  // 1. Fetch all students from these departments in one go
-  const departments = ["মক্তব বিভাগ", "হিফজ বিভাগ", "কিতাব বিভাগ"];
-  
-  // Use $in to get everything in one request
-  const students = await Student.find({ 
-    department: { $in: departments } 
-  });
+const getStudentInTable = async (query) => {
+    // console.log(query?.department);
+    const filter = query?.department ? { department: query?.department } : {};
+    const students = await Student.find(filter);
+    return students;
 
-  // 2. Group them using a single pass (reduce)
-  return students.reduce((acc, student) => {
-    if (student.department === "মক্তব বিভাগ") acc.makteb.push(student);
-    if (student.department === "হিফজ বিভাগ") acc.hifz.push(student);
-    if (student.department === "কিতাব বিভাগ") acc.kitab.push(student);
-    return acc;
-  }, { makteb: [], hifz: [], kitab: [] });
 }
 
 export const studentService = {
